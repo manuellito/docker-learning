@@ -1,0 +1,72 @@
+# values for versions are: lastest, major, specific
+# Lastest it's for lastest published stable version
+# Major it's for the lastest publish of a major version. "Version" must specify the major version, "1", "2" for instance
+# Specific it's for a specific version. For example "1.2.15". The version field must specify this version
+tensorflow:
+    type_version: lastest
+    version: 1
+opencv:
+    type_version: lastest
+    version: 3
+object_detection:
+    enable: True
+    command_install_ssd_mobilenet_v1_coco: False
+    command_install_ssd_mobilenet_v1_0.75_depth_coco: False
+    command_install_ssd_mobilenet_v1_quantized_coco: False
+    command_install_ssd_mobilenet_v1_0.75_depth_quantized_coco: False
+    command_install_ssd_mobilenet_v1_ppn_coco: False
+    command_install_ssd_mobilenet_v1_fpn_coco: False
+    command_install_ssd_resnet_50_fpn_coco: False
+    command_install_ssd_mobilenet_v2_coco: True
+    command_install_ssd_mobilenet_v2_quantized_coco: False
+    command_install_ssdlite_mobilenet_v2_coco: False
+    command_install_ssd_inception_v2_coco: True
+    command_install_faster_rcnn_inception_v2_coco: True
+    command_install_faster_rcnn_resnet50_coco: False
+    command_install_faster_rcnn_resnet50_lowproposals_coco: False
+    command_install_rfcn_resnet101_coco: False
+    command_install_faster_rcnn_resnet101_coco: False
+    command_install_faster_rcnn_resnet101_lowproposals_coco: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_coco: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_coco: False
+    command_install_faster_rcnn_nas: False
+    command_install_faster_rcnn_nas_lowproposals_coco: False
+    command_install_mask_rcnn_inception_resnet_v2_atrous_coco: False
+    command_install_mask_rcnn_inception_v2_coco: False
+    command_install_mask_rcnn_resnet101_atrous_coco: False
+    command_install_mask_rcnn_resnet50_atrous_coco: False
+    command_install_ssd_mobilenet_v3_large_coco: False
+    command_install_ssd_mobilenet_v3_small_coco: False
+    command_install_ssd_mobilenet_edgetpu_coco: False
+    command_install_faster_rcnn_resnet101_kitti: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_oidv2: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_oidv2: False
+    command_install_facessd_mobilenet_v2_quantized_open_image_v4: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_oidv4: False
+    command_install_ssd_mobilenetv2_oidv4: False
+    command_install_ssd_resnet_101_fpn_oidv4: False
+    command_install_faster_rcnn_resnet101_fgvc: False
+    command_install_faster_rcnn_resnet50_fgvc: False
+    command_install_faster_rcnn_resnet101_ava_v2.1: False
+    command_install_faster_rcnn_resnet101_lowproposals_coco: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_coco: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_coco: False
+    command_install_faster_rcnn_nas: False
+    command_install_faster_rcnn_nas_lowproposals_coco: False
+    command_install_mask_rcnn_inception_resnet_v2_atrous_coco: False
+    command_install_mask_rcnn_inception_v2_coco: False
+    command_install_mask_rcnn_resnet101_atrous_coco: False
+    command_install_mask_rcnn_resnet50_atrous_coco: False
+    command_install_ssd_mobilenet_v3_large_coco: False
+    command_install_ssd_mobilenet_v3_small_coco: False
+    command_install_ssd_mobilenet_edgetpu_coco: False
+    command_install_faster_rcnn_resnet101_kitti: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_oidv2: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_oidv2: False
+    command_install_facessd_mobilenet_v2_quantized_open_image_v4: False
+    command_install_faster_rcnn_inception_resnet_v2_atrous_oidv4: False
+    command_install_ssd_mobilenetv2_oidv4: False
+    command_install_ssd_resnet_101_fpn_oidv4: False
+    command_install_faster_rcnn_resnet101_fgvc: False
+    command_install_faster_rcnn_resnet50_fgvc: False
+    command_install_faster_rcnn_resnet101_ava_v2.1: False
