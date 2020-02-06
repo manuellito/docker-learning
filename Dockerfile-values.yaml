@@ -14,8 +14,8 @@ opencv:
                           libxvidcore-dev libx264-dev libgtk-3-dev libatlas-base-dev gfortran python3-dev && \
             apt clean && rm -rf /var/lib/apt/lists/*
     command_install: >
-        RUN wget -q -O $DL_LIBS/opencv.zip https://github.com/opencv/opencv/archive/4.1.2.zip && \ 
-            wget -q -O $DL_LIBS/opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.1.2.zip && \
+        RUN wget -q -O $DL_LIBS/opencv.zip https://github.com/opencv/opencv/archive/{opencv_version}.zip && \ 
+            wget -q -O $DL_LIBS/opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/{opencv_version}.zip && \
             unzip $DL_LIBS/opencv.zip -d $DL_LIBS && \
             unzip $DL_LIBS/opencv_contrib.zip -d $DL_LIBS && \
             rm -rf $DL_LIBS/*.zip && \

@@ -55,8 +55,6 @@ ENV PATH=$CONDA_DIR/bin:$PATH \
     HOME=/home/$NB_USER \
     DL_LIBS=/home/$NB_USER/libs
 
-RUN echo $DL_LIBS
-
 # Add a script that we will use to correct permissions after running certain commands
 ADD fix-permissions /usr/local/bin/fix-permissions
 RUN chmod a+rx /usr/local/bin/fix-permissions
