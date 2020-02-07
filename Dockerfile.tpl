@@ -28,9 +28,9 @@ USER root
 # features (e.g., download as all possible file formats)
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && \
-    apt-get upgrade -yq && \
-    apt-get install -yq --no-install-recommends \
+RUN apt update && \
+    apt upgrade -yq && \
+    apt install -yq --no-install-recommends \
     wget \
     bzip2 \
     ca-certificates \
@@ -50,7 +50,7 @@ RUN apt-get update && \
     tzdata \
     nano \
     g++ \
- && apt-get clean && rm -rf /var/lib/apt/lists/*
+ && apt clean && rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
@@ -225,6 +225,7 @@ RUN conda install --quiet --yes \
 {object_detection_command_install_faster_rcnn_resnet101_ava_v2.1}
 
 {nvidia-gpu_command_install}
+{nvidia-gpu_cuda_install}
 
 EXPOSE 8888
 
