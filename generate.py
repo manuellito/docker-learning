@@ -111,9 +111,7 @@ def replace_section_variables(template_file, config_file, section):
             if value is not None:
                 # Only str or int variable. Ignore bool values for instance
                 if not isinstance(value, bool):
-                    return template_file.replace(variable_name, value)
-                else:
-                    return template_file
+                    template_file = template_file.replace(variable_name, str(value))
     return template_file
 
 def clean_dockerfile(dockerfile):

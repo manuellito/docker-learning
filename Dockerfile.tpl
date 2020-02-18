@@ -9,15 +9,28 @@ ARG NB_USER="icare"
 ARG NB_UID="1000"
 ARG NB_GID="100"
 
+# Configure environment
+ENV CONDA_DIR=/opt/conda \
+    SHELL=/bin/bash \
+    NB_USER=$NB_USER \
+    NB_UID=$NB_UID \
+    NB_GID=$NB_GID \
+    LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8
+ENV PATH=$CONDA_DIR/bin:$PATH \
+    HOME=/home/$NB_USER \
+    DL_LIBS=/home/$NB_USER/libs
+
 USER root
 
 # Install all OS dependencies for notebook server that starts but lacks all
 # features (e.g., download as all possible file formats)
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && \
-    apt-get upgrade -yq && \
-    apt-get install -yq --no-install-recommends \
+RUN apt update && \
+    apt upgrade -yq && \
+    apt install -yq --no-install-recommends \
     wget \
     bzip2 \
     ca-certificates \
@@ -37,23 +50,10 @@ RUN apt-get update && \
     tzdata \
     nano \
     g++ \
- && apt-get clean && rm -rf /var/lib/apt/lists/*
+ && apt clean && rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
-
-# Configure environment
-ENV CONDA_DIR=/opt/conda \
-    SHELL=/bin/bash \
-    NB_USER=$NB_USER \
-    NB_UID=$NB_UID \
-    NB_GID=$NB_GID \
-    LC_ALL=en_US.UTF-8 \
-    LANG=en_US.UTF-8 \
-    LANGUAGE=en_US.UTF-8
-ENV PATH=$CONDA_DIR/bin:$PATH \
-    HOME=/home/$NB_USER \
-    DL_LIBS=/home/$NB_USER/libs
 
 # Add a script that we will use to correct permissions after running certain commands
 ADD fix-permissions /usr/local/bin/fix-permissions
@@ -61,7 +61,6 @@ RUN chmod a+rx /usr/local/bin/fix-permissions
 
 # Enable prompt color in the skeleton .bashrc before creating the default NB_USER
 RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashrc
-
 
 # Create NB_USER wtih name icare user with UID=1000 and in the 'users' group
 # and make sure these dirs are writable by the `users` group.
@@ -75,12 +74,14 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     fix-permissions $HOME && \
     fix-permissions "$(dirname $CONDA_DIR)"
 
-USER $NB_UID
-ARG PYTHON_VERSION=default
-
 # Setup work directory for backward-compatibility
 RUN mkdir $HOME/work && \
     fix-permissions /home/$NB_USER
+
+USER $NB_UID
+ARG PYTHON_VERSION=default
+
+RUN echo $DL_LIBS
 
 # Install conda as jovyan and check the md5 sum provided on the download site
 ENV MINICONDA_VERSION=4.7.12.1 \
@@ -174,7 +175,6 @@ RUN conda install --quiet --yes \
     fix-permissions /home/$NB_USER && \
     mkdir -p /home/icare/libs
 
-
 # Installation of tensorflow
 {tensorflow_command_install}
 
@@ -223,6 +223,9 @@ RUN conda install --quiet --yes \
 {object_detection_command_install_faster_rcnn_resnet101_fgvc}
 {object_detection_command_install_faster_rcnn_resnet50_fgvc}
 {object_detection_command_install_faster_rcnn_resnet101_ava_v2.1}
+
+{nvidia-gpu_command_install}
+{nvidia-gpu_cuda_install}
 
 EXPOSE 8888
 
