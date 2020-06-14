@@ -40,7 +40,7 @@ nvidia-gpu:
 
         ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 
-        ENV NVIDIA_REQUIRE_CUDA "cuda>={nvidia-gpu_cuda_Major_version_with_dot} brand=tesla,driver>=384,driver<385 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411"
+        ENV NVIDIA_REQUIRE_CUDA "cuda>={nvidia-gpu_cuda_Major_version_with_dot} brand=tesla,driver>=384,driver<385 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411 brand=tesla,driver>=418,driver<419"
     cuda_install: >
         # Add NVIDIA package repositories
         
@@ -57,24 +57,25 @@ nvidia-gpu:
         
         # Install NVIDIA driver
         
-        RUN apt install --no-install-recommends -y nvidia-driver-440 
-
-        
         # Install development and runtime libraries (~4GB)
+        # cuDNN version can be found in 6.1.1 there:
+        # https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
         
         RUN apt install -y --no-install-recommends \
             # Replace cuda by cuda-toolkit. Cuda raises some unresolved dependences
             # cuda-10-1 \
             cuda-toolkit-{nvidia-gpu_cuda_major_version} \
-            libcudnn7=7.6.4.38-1+cuda{nvidia-gpu_cuda_Major_version_with_dot}  \
-            libcudnn7-dev=7.6.4.38-1+cuda{nvidia-gpu_cuda_Major_version_with_dot} 
+            libcudnn{nvidia-gpu_cudnn_major_version}={nvidia-gpu_cudnn_version}+cuda{nvidia-gpu_cuda_Major_version_with_dot}  \
+            libcudnn{nvidia-gpu_cudnn_major_version}-dev={nvidia-gpu_cudnn_version}+cuda{nvidia-gpu_cuda_Major_version_with_dot} 
 
 
         # Install TensorRT. Requires that libcudnn7 is installed above.
+        # TensortRT version can be found in 4.1 point 3 there:
+        # https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
         
-        RUN apt install -y --no-install-recommends libnvinfer6=6.0.1-1+cuda{nvidia-gpu_cuda_Major_version_with_dot} \
-            libnvinfer-dev=6.0.1-1+cuda{nvidia-gpu_cuda_Major_version_with_dot} \
-            libnvinfer-plugin6=6.0.1-1+cuda{nvidia-gpu_cuda_Major_version_with_dot} && \
+        RUN apt install -y --no-install-recommends libnvinfer{nvidia-gpu_libnvinfer_version}={nvidia-gpu_tensortrt_version}+cuda{nvidia-gpu_cuda_Major_version_with_dot} \
+            libnvinfer-dev={nvidia-gpu_tensortrt_version}+cuda{nvidia-gpu_cuda_Major_version_with_dot} \
+            libnvinfer-plugin{nvidia-gpu_libnvinfer_version}={nvidia-gpu_tensortrt_version}+cuda{nvidia-gpu_cuda_Major_version_with_dot} && \
             apt clean && rm -rf /var/lib/apt/lists/*
 
         USER $NB_USER

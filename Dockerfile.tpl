@@ -242,6 +242,10 @@ COPY jupyter_notebook_config.py /etc/jupyter/
 USER root
 RUN fix-permissions /etc/jupyter/
 
+RUN apt update && \
+    apt upgrade -yq && \
+    apt clean && rm -rf /var/lib/apt/lists/*
+
 USER $NB_UID
 
 WORKDIR $HOME

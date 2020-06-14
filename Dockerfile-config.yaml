@@ -4,9 +4,17 @@
 # Specific it's for a specific version. For example "1.2.15". The version field must specify this version
 nvidia-gpu:
     enable: True
-    cuda_version: 10.1.168
-    cuda_major_version: 10-1
-    cuda_Major_version_with_dot: 10.1
+    cuda_version: 10.2.89
+    cuda_major_version: 10-2
+    cuda_Major_version_with_dot: 10.2
+    # cuDNN version can be found in 6.1.1 there:
+    # https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
+    dpkg: 7
+    cudnn_version: 7.6.5.32-1
+    # TensortRT version can be found in 4.1 point 3 there:
+    # https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
+    tensortrt_version: 7.6.5.32-1
+    libnvinfer_version: 7
 tensorflow:
     type_version: lastest
     version: 1
