@@ -70,10 +70,8 @@ def generate_config_file(dockerfile_template, dockerfile_config):
                         #The paramter {param} return 2 tokens
                         if parameters_in_command and len(parameters_in_command.groups()) > 2:
                             # The slicing if for delete {} of the parameter
-                            print(f"commande avant:\n{command_value}")
                             parameter_value = params[parameters_in_command.group(2)[1:-1]]
                             command_value = pattern.sub(f"\g<1>{parameter_value}\g<3>", command_value) 
-                            print(f"commande après:\n{command_value}")
                         else:
                             break
                     dockerfile_template = replace_in_template(dockerfile_template, f"{section}_{command}", command_value)
