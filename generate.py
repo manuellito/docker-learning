@@ -10,7 +10,10 @@ DOCKERFILE_TEMPLATE = "Dockerfile.tpl"
 DOCKERFILE_VALUES = "Dockerfile-values.yaml"
 DOCKERFILE_CONFIG = "Dockerfile-config.yaml"
 DOCKERFILE = "Dockerfile"
-CONFIG_TO_IGNORE = ["enable"]
+CONFIG_TO_IGNORE = ["enable", "params"]
+# For now, parameters work only with this pattern
+#   {blabla{parameter}}
+PATTERN_PARAMS_COMMAND = "(\{\S*)(\{\S*\})(\}.*)"
 PATTERN_BLANK = r"(\n){2,}"
 PATTERN_DOUBLE_USER = r"USER (\w+)\s*USER (\w+)"
 
@@ -49,13 +52,31 @@ def generate_config_file(dockerfile_template, dockerfile_config):
             for command in data[section]:
                 dockerfile_template = replace_in_template(dockerfile_template, f"{section}_{command}", "")
         else:
-            # Get command
+            # Step 1: Get params if there are
+            if "params" in dockerfile_config[section]:
+                params = dockerfile_config[section]["params"]
+            # Prepare pattern
+            pattern = re.compile(PATTERN_PARAMS_COMMAND)
+            # Step 2: Replace command by its value
             for command in data[section] :
                 # Do not install the command if it's value in config file its value is "False"
                 if command in dockerfile_config[section].keys() and  dockerfile_config[section][command] == False   :
                     dockerfile_template = replace_in_template(dockerfile_template, f"{section}_{command}", "")
                 else:
-                    dockerfile_template = replace_in_template(dockerfile_template, f"{section}_{command}", data[section][command])
+                    command_value = data[section][command]
+                    #It is possible there are several parameter in a command string
+                    while True:                    
+                        parameters_in_command = pattern.search(command_value) 
+                        #The paramter {param} return 2 tokens
+                        if parameters_in_command and len(parameters_in_command.groups()) > 2:
+                            # The slicing if for delete {} of the parameter
+                            print(f"commande avant:\n{command_value}")
+                            parameter_value = params[parameters_in_command.group(2)[1:-1]]
+                            command_value = pattern.sub(f"\g<1>{parameter_value}\g<3>", command_value) 
+                            print(f"commande après:\n{command_value}")
+                        else:
+                            break
+                    dockerfile_template = replace_in_template(dockerfile_template, f"{section}_{command}", command_value)
         dockerfile_template = replace_section_variables(dockerfile_template, dockerfile_config, section)
     return clean_dockerfile(dockerfile_template)
 

@@ -2,9 +2,9 @@
 # Lastest it's for lastest published stable version
 # Major it's for the lastest publish of a major version. "Version" must specify the major version, "1", "2" for instance
 # Specific it's for a specific version. For example "1.2.15". The version field must specify this version
-nvidia-gpu:
+nvidia-gpu-ori:
     enable: True
-    cuda_version: 10.2.89
+    cuda_completeversion: 10.2.89
     cuda_major_version: 10-2
     cuda_Major_version_with_dot: 10.2
     # cuDNN version can be found in 6.1.1 there:
@@ -15,6 +15,37 @@ nvidia-gpu:
     # https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
     tensortrt_version: 7.6.5.32-1
     libnvinfer_version: 7
+nvidia-gpu:
+    enable: True
+    params:
+        # Change only this one for change CUDA version
+        CUDA_VERSION: 10.2
+    # Do not change following versions. Only if you know what you're doing
+    # ------- CUDA 10.2
+    cuda_version_10.2: 10.2.89
+    cuda_major_version_10.2: 10-2
+    cuda_Major_version_with_dot_10.2: 10.2
+    # cuDNN version can be found in 6.1.1 there:
+    # https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
+    cudnn_major_version_10.2: 7
+    cudnn_version_10.2: 7.6.5.32-1
+    # TensortRT version can be found in 4.1 point 3 there:
+    # https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
+    tensortrt_version_10.2: 7.0.0-1
+    libnvinfer_version_10.2: 7    
+    # ------- CUDA 10.2
+    cuda_version_10.1: 10.1.168
+    cuda_major_version_10.1: 10-1
+    cuda_Major_version_with_dot_10.1: 10.1
+    # cuDNN version can be found in 6.1.1 there:
+    # https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
+    cudnn_major_version_10.1: 7
+    cudnn_version_10.1: 7.6.4.38-1
+    # TensortRT version can be found in 4.1 point 3 there:
+    # https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
+    tensortrt_version_10.1: 6.0.1-1
+    libnvinfer_version_10.1: 6    
+    
 tensorflow:
     type_version: lastest
     version: 1
