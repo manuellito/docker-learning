@@ -176,57 +176,110 @@ RUN conda install --quiet --yes \
     fix-permissions /home/$NB_USER && \
     mkdir -p /home/icare/libs
 
-
-{nvidia-gpu_command_install}
-{nvidia-gpu_cuda_install}
-
-{tensorflow_command_install}
+# Installation of tensorflow
+RUN cd /home/icare/libs &&  \
+    strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBC && \
+    export LD_LIBRARY_PATH=/usr/local/lib64  && \
+    git clone https://github.com/bazelbuild/bazelisk.git && \
+    ln bazelisk/bazelisk.py bazelisk/bazel && \
+    export PATH=$PATH:/home/icare/libs/bazelisk && \
+    conda install pip six numpy wheel setuptools mock 'future>=0.17.1' && \
+    pip install -U keras_applications --no-deps && \
+    pip install -U keras_preprocessing --no-deps && \
+    cd /home/icare/libs && \
+    git clone https://github.com/tensorflow/tensorflow.git && \
+    cd tensorflow && \
+    git checkout r2.2 && \
+    grep -r _TF_MAX_BAZEL_VERSION . | grep = | cut -f2 -d\' > .bazelversion && \
+    ./configure && \
+    bazel build --config=v2 $OPTION_CUDA //tensorflow/tools/pip_package:build_pip_package && \
+    ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg && \
+    pip install /tmp/tensorflow_pkg/tensorflow-2.2*.whl && \
+    bazel clean --expunge
 
 # Installation opencv
-{opencv_command_user_to_root}
-# Opencv enviromment creation
-{opencv_command_install}
+USER root
 
-{object_detection_command_user_to_root}
-{object_detection_command_install}
-{object_detection_command_install_ssd_mobilenet_v1_coco}
-{object_detection_command_install_ssd_mobilenet_v1_0.75_depth_coco}
-{object_detection_command_install_ssd_mobilenet_v1_quantized_coco}
-{object_detection_command_install_ssd_mobilenet_v1_0.75_depth_quantized_coco}
-{object_detection_command_install_ssd_mobilenet_v1_ppn_coco}
-{object_detection_command_install_ssd_mobilenet_v1_fpn_coco}
-{object_detection_command_install_ssd_resnet_50_fpn_coco}
-{object_detection_command_install_ssd_mobilenet_v2_coco}
-{object_detection_command_install_ssd_mobilenet_v2_quantized_coco}
-{object_detection_command_install_ssdlite_mobilenet_v2_coco}
-{object_detection_command_install_ssd_inception_v2_coco}
-{object_detection_command_install_faster_rcnn_inception_v2_coco}
-{object_detection_command_install_faster_rcnn_resnet50_coco}
-{object_detection_command_install_faster_rcnn_resnet50_lowproposals_coco}
-{object_detection_command_install_rfcn_resnet101_coco}
-{object_detection_command_install_faster_rcnn_resnet101_coco}
-{object_detection_command_install_faster_rcnn_resnet101_lowproposals_coco}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_coco}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_coco}
-{object_detection_command_install_faster_rcnn_nas}
-{object_detection_command_install_faster_rcnn_nas_lowproposals_coco}
-{object_detection_command_install_mask_rcnn_inception_resnet_v2_atrous_coco}
-{object_detection_command_install_mask_rcnn_inception_v2_coco}
-{object_detection_command_install_mask_rcnn_resnet101_atrous_coco}
-{object_detection_command_install_mask_rcnn_resnet50_atrous_coco}
-{object_detection_command_install_ssd_mobilenet_v3_large_coco}
-{object_detection_command_install_ssd_mobilenet_v3_small_coco}
-{object_detection_command_install_ssd_mobilenet_edgetpu_coco}
-{object_detection_command_install_faster_rcnn_resnet101_kitti}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_oidv2}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_oidv2}
-{object_detection_command_install_facessd_mobilenet_v2_quantized_open_image_v4}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_oidv4}
-{object_detection_command_install_ssd_mobilenetv2_oidv4}
-{object_detection_command_install_ssd_resnet_101_fpn_oidv4}
-{object_detection_command_install_faster_rcnn_resnet101_fgvc}
-{object_detection_command_install_faster_rcnn_resnet50_fgvc}
-{object_detection_command_install_faster_rcnn_resnet101_ava_v2.1}
+RUN apt update && \
+    apt install -y cmake unzip pkg-config libjpeg-dev libpng-dev libtiff-dev libavcodec-dev  \
+                  libxvidcore-dev libx264-dev libgtk-3-dev libatlas-base-dev gfortran python3-dev && \
+    apt clean && rm -rf /var/lib/apt/lists/*
+
+# Opencv enviromment creation
+RUN wget -q -O $DL_LIBS/opencv.zip https://github.com/opencv/opencv/archive/4.3.0.zip && \ 
+    wget -q -O $DL_LIBS/opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.3.0.zip && \
+    unzip $DL_LIBS/opencv.zip -d $DL_LIBS && \
+    unzip $DL_LIBS/opencv_contrib.zip -d $DL_LIBS && \
+    rm -rf $DL_LIBS/*.zip && \
+    mv $DL_LIBS/opencv-* $DL_LIBS/opencv && \
+    mv $DL_LIBS/opencv_contrib* $DL_LIBS/opencv_contrib && \
+    mkdir $DL_LIBS/opencv/build && \
+    cd $DL_LIBS/opencv/build && \
+    cmake -D WITH_CUDA=OFF \
+        -D BUILD_TIFF=ON \
+        -D BUILD_opencv_java=OFF \
+        -D ENABLE_AVX=ON \
+        -D WITH_OPENGL=ON \
+        -D WITH_OPENCL=ON \
+        -D WITH_IPP=ON \
+        -D WITH_TBB=ON \
+        -D WITH_EIGEN=ON \
+        -D WITH_V4L=ON \
+        -D WITH_VTK=OFF \
+        -D BUILD_TESTS=OFF \
+        -D BUILD_PERF_TESTS=OFF \
+        -D CMAKE_BUILD_TYPE=RELEASE \
+        -D BUILD_opencv_python2=OFF \
+        -D CMAKE_INSTALL_PREFIX=$(python3 -c "import sys; print(sys.prefix)") \
+        -D PYTHON3_EXECUTABLE=$(which python3) \
+        -D PYTHON3_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
+        -D PYTHON3_PACKAGES_PATH=$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") \
+        -D CMAKE_BUILD_TYPE=RELEASE \
+        -D CMAKE_INSTALL_PREFIX=$DL_LIBS \
+        -D PYTHON_DEFAULT_EXECUTABLE=$(which python3) \ 
+        -D OPENCV_EXTRA_MODULES_PATH=$DL_LIBS/opencv_contrib/modules \
+        -D BUILD_EXAMPLES=ON .. && \
+    make -j4 && make install && ldconfig  && make clean && \
+    # Experience some issues with libfreetype library
+    # There is already in system path
+    # More infos:
+    # https://rtbecard.gitlab.io/2018/11/03/Installing-opencv-with-ffmpeg-support-in-Anaconda3-(Ubuntu-16.04).html
+    rm -rf $CONDA_DIR/lib/libfontconfig.* \
+    rm -rf $CONDA_DIR/lib/libgio-2.0.so* \        
+    set PATH=$PATH:$DL_LIBS\bin && \
+    fix-permissions $DL_LIBS         
+
+USER $NB_USER
+
+USER root
+RUN pip install Cython contextlib2 pillow lxml protobuf protobuf-compiler pycocotools && \
+    mkdir -p $DL_LIBS/tensorflow && \ 
+    cd $DL_LIBS/tensorflow && \ 
+    git clone https://github.com/tensorflow/models.git && \
+    set PYTHONPATH=$DL_LIBS/tensorflow/models:$DL_LIBS/tensorflow/models/research:$DL_LIBS/tensorflow/models/research/slim:$PYTHONPATH && \
+    cd $DL_LIBS/tensorflow/models/research && \
+    protoc object_detection/protos/*.proto --python_out=. && \
+    python setup.py build && \
+    python setup.py install  && \
+    fix-permissions $DL_LIBS/tensorflow      
+
+RUN cd $DL_LIBS/tensorflow && \
+    wget http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_coco_2018_03_29.tar.gz && \
+    tar xvzf ssd_mobilenet_v2_coco_2018_03_29.tar.gz && \
+    rm ssd_mobilenet_v2_coco_2018_03_29.tar.gz  && \
+    fix-permissions $DL_LIBS/tensorflow
+
+RUN cd $DL_LIBS/tensorflow && \
+    wget http://download.tensorflow.org/models/object_detection/ssd_inception_v2_coco_2018_01_28.tar.gz && \
+    tar xvzf ssd_inception_v2_coco_2018_01_28.tar.gz && \
+    rm ssd_inception_v2_coco_2018_01_28.tar.gz  && \
+    fix-permissions $DL_LIBS/tensorflow
+
+RUN cd $DL_LIBS/tensorflow && \
+    wget http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_v2_coco_2018_01_28.tar.gz && \
+    tar xvzf faster_rcnn_inception_v2_coco_2018_01_28.tar.gz && \
+    rm faster_rcnn_inception_v2_coco_2018_01_28.tar.gz  && \
+    fix-permissions $DL_LIBS/tensorflow
 
 EXPOSE 8888
 
@@ -248,7 +301,6 @@ USER $NB_UID
 WORKDIR $HOME
 
 RUN jupyter nbextension enable hinterland/hinterland
-
 
 RUN jupyter nbextension enable varInspector/main 
 RUN jupyter nbextension enable toc2/main 

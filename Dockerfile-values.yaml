@@ -21,6 +21,7 @@ nvidia-gpu:
             cuda-cudart-$CUDA_PKG_VERSION \
             cuda-compat-{nvidia-gpu_cuda_major_version_{CUDA_VERSION}} && \
             ln -s cuda-{nvidia-gpu_cuda_Major_version_with_dot_{CUDA_VERSION}} /usr/local/cuda && \
+            ln -s /usr/local/cuda-{nvidia-gpu_cuda_Major_version_with_dot_{CUDA_VERSION}}/targets/x86_64-linux/lib/libcudart.so.{nvidia-gpu_cuda_Major_version_with_dot_{CUDA_VERSION}} /usr/local/lib/libcudart.so.10.1 && \
             rm -rf /var/lib/apt/lists/*
 
 
@@ -41,6 +42,11 @@ nvidia-gpu:
         ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 
         ENV NVIDIA_REQUIRE_CUDA "cuda>={nvidia-gpu_cuda_Major_version_with_dot_{CUDA_VERSION}} brand=tesla,driver>=384,driver<385 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411 brand=tesla,driver>=418,driver<419"
+
+        # Tensorflow Options
+
+        ENV OPTION_CUDA "--config=cuda"
+
     cuda_install: >
         # Add NVIDIA package repositories
         
@@ -81,10 +87,28 @@ nvidia-gpu:
         USER $NB_USER
 tensorflow:
     command_install: >
-        RUN pip install --quiet \
-            'tensorflow=={tensorflow_version}' && \
-            fix-permissions $CONDA_DIR && \
-            fix-permissions /home/$NB_USER
+        # Installation of tensorflow
+
+        RUN cd /home/icare/libs &&  \
+            strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBC && \
+            export LD_LIBRARY_PATH=/usr/local/lib64  && \
+            git clone https://github.com/bazelbuild/bazelisk.git && \
+            ln bazelisk/bazelisk.py bazelisk/bazel && \
+            export PATH=$PATH:/home/icare/libs/bazelisk && \
+            conda install pip six numpy wheel setuptools mock 'future>=0.17.1' && \
+            pip install -U keras_applications --no-deps && \
+            pip install -U keras_preprocessing --no-deps && \
+            cd /home/icare/libs && \
+            git clone https://github.com/tensorflow/tensorflow.git && \
+            cd tensorflow && \
+            git checkout r{tensorflow_version} && \
+            grep -r _TF_MAX_BAZEL_VERSION . | grep = | cut -f2 -d\' > .bazelversion && \
+            ./configure && \
+            bazel build --config=v2 $OPTION_CUDA //tensorflow/tools/pip_package:build_pip_package && \
+            ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg && \
+            pip install /tmp/tensorflow_pkg/tensorflow-{tensorflow_version}*.whl && \
+            bazel clean --expunge
+
 opencv:
     command_user_to_root: > 
         USER root
