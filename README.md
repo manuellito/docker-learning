@@ -19,6 +19,8 @@ It is possible to specify a version, or to choose the last or latest of a major 
 ## Requirements
 
   - PyYAML
+  - bs4
+  - lxml
   - GithubVersionManager (https://github.com/manuellito/GithubVersionManager). The path should be include in PYTHONPATH environment variable
 
 ## Use it
