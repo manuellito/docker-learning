@@ -84,6 +84,8 @@ nvidia-gpu:
             libnvinfer-plugin{nvidia-gpu_libnvinfer_version_{CUDA_VERSION}}={nvidia-gpu_tensortrt_version_{CUDA_VERSION}}+cuda{nvidia-gpu_cuda_Major_version_with_dot_{CUDA_VERSION}} && \
             apt clean && rm -rf /var/lib/apt/lists/*
 
+        ENV PYTORCH_CUDA_INSTALL cudatoolkit={nvidia-gpu_cuda_Major_version_with_dot_{CUDA_VERSION}}
+
         USER $NB_USER
 tensorflow:
     command_install: >
@@ -388,5 +390,18 @@ object_detection:
             rm faster_rcnn_resnet101_ava_v2.1_2018_04_30.tar.gz && \
             fix-permissions $DL_LIBS/tensorflow
     command_user_to_personnal: USER $NB_USER
+
+torchvision:
+    command_version_install: >
+        ENV TORCHVISION_INSTALL_COMMAND torchvision=={torchvision_version}
+
+pytorch:
+    command_install: >
+        USER root
+        
+        RUN conda install  pytorch=={pytorch_version} $TORCHVISION_INSTALL_COMMAND $PYTORCH_CUDA_INSTALL -c pytorch
+
+        USER $NB_USER
+
 
 

@@ -2,8 +2,10 @@
 # Lastest it's for lastest published stable version
 # Major it's for the lastest publish of a major version. "Version" must specify the major version, "1", "2" for instance
 # Specific it's for a specific version. For example "1.2.15". The version field must specify this version
+
+# nvidia-gpu can be use by Tensorflow or Pytorch
 nvidia-gpu:
-    enable: False
+    enable: True
     params:
         # Change only this one for change CUDA version
         CUDA_VERSION: 10.2
@@ -34,13 +36,15 @@ nvidia-gpu:
     libnvinfer_version_10.1: 6    
     
 tensorflow:
-    type_version: specific
+    enable: True
+    type_version: Lastest
     version: 2.2
 opencv:
+    enable: True
     type_version: lastest
     version: 3
 object_detection:
-    enable: True
+    enable: False
     command_install_ssd_mobilenet_v1_coco: False
     command_install_ssd_mobilenet_v1_0.75_depth_coco: False
     command_install_ssd_mobilenet_v1_quantized_coco: False
@@ -101,3 +105,11 @@ object_detection:
     command_install_faster_rcnn_resnet101_fgvc: False
     command_install_faster_rcnn_resnet50_fgvc: False
     command_install_faster_rcnn_resnet101_ava_v2.1: False
+torchvision:
+    enable: False
+    type_version: lastest
+    version: 8.0.0
+pytorch:
+    enable: False
+    type_version: lastest
+    version: 1.8.0

@@ -179,59 +179,17 @@ RUN conda install --quiet --yes \
 # PYTORCH_CUDA_INSTALL set to "cpuonly" by default.
 # value updated by the installation of CUDA with its CONDA_VERSION
 ENV PYTORCH_CUDA_INSTALL cpuonly
-{nvidia-gpu_command_install}
-{nvidia-gpu_cuda_install}
-
-{tensorflow_command_install}
 
 # Installation opencv
-{opencv_command_user_to_root}
+
 # Opencv enviromment creation
-{opencv_command_install}
 
-{object_detection_command_user_to_root}
-{object_detection_command_install}
-{object_detection_command_install_ssd_mobilenet_v1_coco}
-{object_detection_command_install_ssd_mobilenet_v1_0.75_depth_coco}
-{object_detection_command_install_ssd_mobilenet_v1_quantized_coco}
-{object_detection_command_install_ssd_mobilenet_v1_0.75_depth_quantized_coco}
-{object_detection_command_install_ssd_mobilenet_v1_ppn_coco}
-{object_detection_command_install_ssd_mobilenet_v1_fpn_coco}
-{object_detection_command_install_ssd_resnet_50_fpn_coco}
-{object_detection_command_install_ssd_mobilenet_v2_coco}
-{object_detection_command_install_ssd_mobilenet_v2_quantized_coco}
-{object_detection_command_install_ssdlite_mobilenet_v2_coco}
-{object_detection_command_install_ssd_inception_v2_coco}
-{object_detection_command_install_faster_rcnn_inception_v2_coco}
-{object_detection_command_install_faster_rcnn_resnet50_coco}
-{object_detection_command_install_faster_rcnn_resnet50_lowproposals_coco}
-{object_detection_command_install_rfcn_resnet101_coco}
-{object_detection_command_install_faster_rcnn_resnet101_coco}
-{object_detection_command_install_faster_rcnn_resnet101_lowproposals_coco}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_coco}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_coco}
-{object_detection_command_install_faster_rcnn_nas}
-{object_detection_command_install_faster_rcnn_nas_lowproposals_coco}
-{object_detection_command_install_mask_rcnn_inception_resnet_v2_atrous_coco}
-{object_detection_command_install_mask_rcnn_inception_v2_coco}
-{object_detection_command_install_mask_rcnn_resnet101_atrous_coco}
-{object_detection_command_install_mask_rcnn_resnet50_atrous_coco}
-{object_detection_command_install_ssd_mobilenet_v3_large_coco}
-{object_detection_command_install_ssd_mobilenet_v3_small_coco}
-{object_detection_command_install_ssd_mobilenet_edgetpu_coco}
-{object_detection_command_install_faster_rcnn_resnet101_kitti}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_oidv2}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_oidv2}
-{object_detection_command_install_facessd_mobilenet_v2_quantized_open_image_v4}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_oidv4}
-{object_detection_command_install_ssd_mobilenetv2_oidv4}
-{object_detection_command_install_ssd_resnet_101_fpn_oidv4}
-{object_detection_command_install_faster_rcnn_resnet101_fgvc}
-{object_detection_command_install_faster_rcnn_resnet50_fgvc}
-{object_detection_command_install_faster_rcnn_resnet101_ava_v2.1}
+ENV TORCHVISION_INSTALL_COMMAND torchvision==0.7.0
 
-{torchvision_command_version_install}
-{pytorch_command_install}
+USER root
+RUN conda install  pytorch==1.6.0 $TORCHVISION_INSTALL_COMMAND $PYTORCH_CUDA_INSTALL -c pytorch
+USER $NB_USER
+
 EXPOSE 8888
 
 # Configure container startup
@@ -252,7 +210,6 @@ USER $NB_UID
 WORKDIR $HOME
 
 RUN jupyter nbextension enable hinterland/hinterland
-
 
 RUN jupyter nbextension enable varInspector/main 
 RUN jupyter nbextension enable toc2/main 

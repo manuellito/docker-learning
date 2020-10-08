@@ -17,7 +17,6 @@ PATTERN_PARAMS_COMMAND = "(\{\S*)(\{\S*\})(\}.*)"
 PATTERN_BLANK = r"(\n){2,}"
 PATTERN_DOUBLE_USER = r"USER (\w+)\s*USER (\w+)"
 
-
 current_path = str(Path().absolute())
 
 # Load files
@@ -33,7 +32,11 @@ tensorflow_version = gv.GithubVersionManager("tensorflow", "tensorflow")
 tensorflow_version.get_versions()
 opencv_version = gv.GithubVersionManager("opencv", "opencv")
 opencv_version.get_versions()
-versions_list = {"tensorflow": tensorflow_version, "opencv": opencv_version}
+pytorch_version = gv.GithubVersionManager("pytorch", "pytorch")
+pytorch_version.get_versions()
+torchvision_version = gv.GithubVersionManager("pytorch", "vision")
+torchvision_version.get_versions()
+versions_list = {"tensorflow": tensorflow_version, "opencv": opencv_version, "pytorch":pytorch_version, "torchvision": torchvision_version}
 
 def generate_config_file(dockerfile_template, dockerfile_config):
     """ 
@@ -65,7 +68,7 @@ def generate_config_file(dockerfile_template, dockerfile_config):
                 else:
                     command_value = data[section][command]
                     #It is possible there are several parameter in a command string
-                    while True:                    
+                    while True:                  
                         parameters_in_command = pattern.search(command_value) 
                         #The paramter {param} return 2 tokens
                         if parameters_in_command and len(parameters_in_command.groups()) > 2:

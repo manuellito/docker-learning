@@ -179,59 +179,77 @@ RUN conda install --quiet --yes \
 # PYTORCH_CUDA_INSTALL set to "cpuonly" by default.
 # value updated by the installation of CUDA with its CONDA_VERSION
 ENV PYTORCH_CUDA_INSTALL cpuonly
-{nvidia-gpu_command_install}
-{nvidia-gpu_cuda_install}
+USER root
+RUN apt update && apt install -y --no-install-recommends gnupg2 curl ca-certificates && \
+    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
+    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
+    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
+    apt purge --autoremove -y curl && \
+    rm -rf /var/lib/apt/lists/*
 
-{tensorflow_command_install}
+ENV CUDA_VERSION 10.2.89
+ENV CUDA_PKG_VERSION 10-2=$CUDA_VERSION-1
+
+# For libraries in the cuda-compat-* package: https://docs.nvidia.com/cuda/eula/index.html#attachment-a
+RUN apt update && apt install -y --no-install-recommends \
+    cuda-cudart-$CUDA_PKG_VERSION \
+    cuda-compat-10-2 && \
+    ln -s cuda-10.2 /usr/local/cuda && \
+    ln -s /usr/local/cuda-10.2/targets/x86_64-linux/lib/libcudart.so.10.2 /usr/local/lib/libcudart.so.10.1 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Required for nvidia-docker v1
+RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
+    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+
+ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+
+# nvidia-container-runtime
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
+ENV NVIDIA_REQUIRE_CUDA "cuda>=10.2 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411 brand=tesla,driver>=418,driver<419"
+# Tensorflow Options
+ENV OPTION_CUDA "--config=cuda"
+
+# Add NVIDIA package repositories
+# From https://www.tensorflow.org/install/gpu
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.2.89-1_amd64.deb && \
+    apt install -y -o Dpkg::Options::="--force-confold" ./cuda-repo-ubuntu1804_10.2.89-1_amd64.deb && \
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub && \
+    apt update && \
+    wget http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb && \
+    apt install -y ./nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb && \
+    apt update
+
+# Install NVIDIA driver
+# Install development and runtime libraries (~4GB) # cuDNN version can be found in 6.1.1 there: # https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html
+RUN apt install -y --no-install-recommends \
+    # Replace cuda by cuda-toolkit. Cuda raises some unresolved dependences
+    # cuda-10-1 \
+    cuda-toolkit-10-2 \
+    libcudnn7=7.6.5.32-1+cuda10.2  \
+    libcudnn7-dev=7.6.5.32-1+cuda10.2 
+
+# Install TensorRT. Requires that libcudnn7 is installed above. # TensortRT version can be found in 4.1 point 3 there: # https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
+RUN apt install -y --no-install-recommends libnvinfer7=7.0.0-1+cuda10.2 \
+    libnvinfer-dev=7.0.0-1+cuda10.2 \
+    libnvinfer-plugin7=7.0.0-1+cuda10.2 && \
+    apt clean && rm -rf /var/lib/apt/lists/*
+
+ENV PYTORCH_CUDA_INSTALL cudatoolkit=10.2
+USER $NB_USER
 
 # Installation opencv
-{opencv_command_user_to_root}
+
 # Opencv enviromment creation
-{opencv_command_install}
 
-{object_detection_command_user_to_root}
-{object_detection_command_install}
-{object_detection_command_install_ssd_mobilenet_v1_coco}
-{object_detection_command_install_ssd_mobilenet_v1_0.75_depth_coco}
-{object_detection_command_install_ssd_mobilenet_v1_quantized_coco}
-{object_detection_command_install_ssd_mobilenet_v1_0.75_depth_quantized_coco}
-{object_detection_command_install_ssd_mobilenet_v1_ppn_coco}
-{object_detection_command_install_ssd_mobilenet_v1_fpn_coco}
-{object_detection_command_install_ssd_resnet_50_fpn_coco}
-{object_detection_command_install_ssd_mobilenet_v2_coco}
-{object_detection_command_install_ssd_mobilenet_v2_quantized_coco}
-{object_detection_command_install_ssdlite_mobilenet_v2_coco}
-{object_detection_command_install_ssd_inception_v2_coco}
-{object_detection_command_install_faster_rcnn_inception_v2_coco}
-{object_detection_command_install_faster_rcnn_resnet50_coco}
-{object_detection_command_install_faster_rcnn_resnet50_lowproposals_coco}
-{object_detection_command_install_rfcn_resnet101_coco}
-{object_detection_command_install_faster_rcnn_resnet101_coco}
-{object_detection_command_install_faster_rcnn_resnet101_lowproposals_coco}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_coco}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_coco}
-{object_detection_command_install_faster_rcnn_nas}
-{object_detection_command_install_faster_rcnn_nas_lowproposals_coco}
-{object_detection_command_install_mask_rcnn_inception_resnet_v2_atrous_coco}
-{object_detection_command_install_mask_rcnn_inception_v2_coco}
-{object_detection_command_install_mask_rcnn_resnet101_atrous_coco}
-{object_detection_command_install_mask_rcnn_resnet50_atrous_coco}
-{object_detection_command_install_ssd_mobilenet_v3_large_coco}
-{object_detection_command_install_ssd_mobilenet_v3_small_coco}
-{object_detection_command_install_ssd_mobilenet_edgetpu_coco}
-{object_detection_command_install_faster_rcnn_resnet101_kitti}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_oidv2}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_lowproposals_oidv2}
-{object_detection_command_install_facessd_mobilenet_v2_quantized_open_image_v4}
-{object_detection_command_install_faster_rcnn_inception_resnet_v2_atrous_oidv4}
-{object_detection_command_install_ssd_mobilenetv2_oidv4}
-{object_detection_command_install_ssd_resnet_101_fpn_oidv4}
-{object_detection_command_install_faster_rcnn_resnet101_fgvc}
-{object_detection_command_install_faster_rcnn_resnet50_fgvc}
-{object_detection_command_install_faster_rcnn_resnet101_ava_v2.1}
+ENV TORCHVISION_INSTALL_COMMAND torchvision==0.7.0
 
-{torchvision_command_version_install}
-{pytorch_command_install}
+USER root
+RUN conda install  pytorch==1.6.0 $TORCHVISION_INSTALL_COMMAND $PYTORCH_CUDA_INSTALL -c pytorch
+USER $NB_USER
+
 EXPOSE 8888
 
 # Configure container startup
@@ -252,7 +270,6 @@ USER $NB_UID
 WORKDIR $HOME
 
 RUN jupyter nbextension enable hinterland/hinterland
-
 
 RUN jupyter nbextension enable varInspector/main 
 RUN jupyter nbextension enable toc2/main 

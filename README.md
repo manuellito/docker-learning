@@ -54,5 +54,5 @@ Some Dockerfiles are provided in 'generated' folder:
 
 # Readmap
 
-- Pytorch
+- ~~Pytorch~~
 - Yolo v4 integration
