@@ -97,7 +97,7 @@ tensorflow:
             git clone https://github.com/bazelbuild/bazelisk.git && \
             ln bazelisk/bazelisk.py bazelisk/bazel && \
             export PATH=$PATH:/home/icare/libs/bazelisk && \
-            conda install pip six numpy wheel setuptools mock 'future>=0.17.1' && \
+            conda install pip six numpy<1.19.0 wheel setuptools mock 'future>=0.17.1' && \
             pip install -U keras_applications --no-deps && \
             pip install -U keras_preprocessing --no-deps && \
             cd /home/icare/libs && \
