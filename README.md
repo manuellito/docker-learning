@@ -51,6 +51,8 @@ Some Dockerfiles are provided in 'generated' folder:
   - Dockerfile_tf2.2_cv4.3.0_cuda10.1
   - Dockerfile_tf2.2_cv4.3.0_cuda10.2
   - Dockerfile_tf2.2_cv4.3.0_nogpus
+  - Dockerfile_pytorch1.8.0_cuda10.2
+  - Dockerfile_pytorch1.8.0_nogpus
 
 # Readmap
 
