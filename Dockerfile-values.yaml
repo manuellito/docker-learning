@@ -104,7 +104,6 @@ tensorflow:
             git clone https://github.com/tensorflow/tensorflow.git && \
             cd tensorflow && \
             git checkout r{tensorflow_version} && \
-            grep -r _TF_MAX_BAZEL_VERSION . | grep = | cut -f2 -d\' > .bazelversion && \
             ./configure && \
             bazel build --config=v2 $OPTION_CUDA //tensorflow/tools/pip_package:build_pip_package && \
             ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg && \
